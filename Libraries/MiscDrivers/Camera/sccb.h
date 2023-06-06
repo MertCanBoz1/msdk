@@ -43,6 +43,7 @@ int sccb_scan(void);
 int sccb_read_byt(uint8_t slv_addr, uint8_t reg, uint8_t *byt);
 int sccb_write_byt(uint8_t slv_addr, uint8_t reg, uint8_t byt);
 int sccb_read_reg16(uint8_t slv_addr, uint16_t reg, uint8_t *byte);
+int sccb_read_reg16w(uint8_t slv_addr, uint16_t reg, uint16_t *word);
 int sccb_write_reg16(uint8_t slv_addr, uint16_t reg, uint8_t val);
-
+int sccb_write_reg16w(uint8_t slv_addr, uint16_t reg, uint16_t val);
 #endif // LIBRARIES_MISCDRIVERS_CAMERA_SCCB_H_

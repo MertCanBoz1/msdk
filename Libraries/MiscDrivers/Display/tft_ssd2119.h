@@ -227,5 +227,5 @@ void MXC_TFT_SetRotation(tft_rotation_t rotation);
  * @param       data                data for the command or register
  */
 void MXC_TFT_WriteReg(uint16_t command, uint16_t data);
-
+void MXC_TFT_SetBackGroundColor2(uint16_t color);
 #endif // LIBRARIES_MISCDRIVERS_DISPLAY_TFT_SSD2119_H_

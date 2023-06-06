@@ -50,6 +50,8 @@
 #include "ov7692_regs.h"
 #elif defined(CAMERA_PAG7920)
 #include "pag7920_regs.h"
+#elif defined(CAMERA_ASX340)
+#include "asx340_regs.h"
 #endif
 
 #include "tmr_regs.h"
@@ -88,6 +90,11 @@ typedef enum {
     GAINCEILING_128X,
 } gainceiling_t;
 
+struct camera_reg {
+    uint16_t addr;
+    uint8_t val;
+};
+
 typedef struct _camera {
     // Sensor function pointers
     int (*init)(void);
@@ -101,6 +108,9 @@ typedef struct _camera {
     defined(CAMERA_OV5642)
     int (*read_reg)(uint16_t reg_addr, uint8_t *reg_data);
     int (*write_reg)(uint16_t reg_addr, uint8_t reg_data);
+#elif defined (CAMERA_ASX340)
+    int (*read_reg)(uint16_t reg_addr, uint16_t *reg_data);
+    int (*write_reg)(uint16_t reg_addr, uint16_t reg_data);
 #else //(CAMERA_OV7692) || (CAMERA_PAG7920)
     int (*read_reg)(uint8_t reg_addr, uint8_t *reg_data);
     int (*write_reg)(uint8_t reg_addr, uint8_t reg_data);
@@ -118,6 +128,9 @@ typedef struct _camera {
     int (*set_vflip)(int enable);
     int (*set_negateimage)(int enable);
     int (*get_luminance)(int *lum);
+#if defined(CAMERA_ASX340)
+    int (*change_config)(void);
+#endif
 } camera_t;
 
 typedef struct _stream_stat {
@@ -175,6 +188,9 @@ void bayer_bilinear_demosaicing(uint8_t *srcimg, uint32_t w, uint32_t h, uint16_
 // Write a sensor register.
 int camera_write_reg(uint16_t reg_addr, uint8_t reg_data);
 int camera_read_reg(uint16_t reg_addr, uint8_t *reg_data);
+#elif defined(CAMERA_ASX340)
+int camera_write_reg(uint16_t reg_addr, uint16_t reg_data);
+int camera_read_reg(uint16_t reg_addr, uint16_t *reg_data);
 #else //(CAMERA_OV7692) || (CAMERA_PAG7920)
 // Write a sensor register.
 int camera_write_reg(uint8_t reg_addr, uint8_t reg_data);

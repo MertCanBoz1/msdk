@@ -64,7 +64,7 @@
 // Configuration options
 // ------------------------
 #define ENABLE_TFT // Comment out to disable TFT and send image to serial port instead.
-//#define STREAM_ENABLE
+// #define STREAM_ENABLE
 /* If enabled, camera is setup in streaming mode to send the image
 line by line to TFT, or serial port as they are captured. Otherwise, it buffers the entire
 image first and then sends to TFT or serial port.
@@ -134,7 +134,7 @@ Compiler definitions...  These configure TFT and camera settings based on the op
 
 #endif
 
-#if defined(CAMERA_OV7692) || defined(CAMERA_OV5642)
+#if defined(CAMERA_OV7692) || defined(CAMERA_OV5642) || defined(CAMERA_ASX340)
 
 #ifdef ENABLE_TFT
 #ifdef STREAM_ENABLE
@@ -253,7 +253,7 @@ void process_img(void)
 
 #endif //#ifndef STREAM_ENABLE
 }
-
+\
 // *****************************************************************************
 int main(void)
 {
@@ -301,6 +301,16 @@ int main(void)
     camera_set_vflip(0);
 #endif
 
+#if defined(CAMERA_ASX340)
+    camera_set_hmirror(0);
+    camera_set_vflip(0);
+    if(CAMERA_FREQ>12500000){
+        camera_write_reg(0xC964, 0x0224);  /*  CAM_SYSCTL_PLL_DIVIDER_M-N */
+        camera_write_reg(0xC966, 0x0400); /*  CAM_SYSCTL_PLL_DIVIDER_P */
+        camera_change_config();
+    }
+#endif
+
 #ifdef ENABLE_TFT
     printf("Init TFT\n");
     /* Initialize TFT display */
@@ -310,12 +320,12 @@ int main(void)
 
 #ifdef BOARD_FTHR_REVA
     MXC_TFT_Init(MXC_SPI0, 1, NULL, NULL);
-#ifdef STREAM_ENABLE
+#ifdef FEATHER_FAST_STREAM
     /* Set the screen rotation */
     MXC_TFT_SetRotation(ROTATE_270);
 #endif
 #endif
-    MXC_TFT_SetBackGroundColor(4);
+    MXC_TFT_SetBackGroundColor2(0x0FFF);
 #endif
 
 #if defined(CAMERA_OV7692) && defined(STREAM_ENABLE)
@@ -408,7 +418,8 @@ int main(void)
     }
 #else
     camera_start_capture_image_tft();
-    while (1) {}
+    while (1)
+        ;
 #endif
 
     return ret;

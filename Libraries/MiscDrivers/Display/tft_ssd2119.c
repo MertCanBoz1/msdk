@@ -1009,6 +1009,49 @@ void MXC_TFT_SetBackGroundColor(unsigned int color)
     return;
 }
 
+void MXC_TFT_SetBackGroundColor2(uint16_t color)
+{
+    __disable_irq();
+    unsigned int x, y;
+    int width;
+    int height;
+    if (tft_rotation == SCREEN_NORMAL || tft_rotation == SCREEN_FLIP) {
+        width  = 320;
+        height = 240;
+        displayAll();
+        for (y = 0; y < height; y++) {
+            for (int i = 0; i < width >> 2; i++) {
+                for (int k = 0; k < 4; k++) {
+                    g_fifo[k] = 0x01000100 | ((color&0xFF00)>>8) | ((color&0xFF)<<16);
+                }
+                spi_transmit((uint16_t *)g_fifo, 8);
+            }
+        }
+    } else if (tft_rotation == SCREEN_ROTATE) {
+        width  = 240;
+        height = 320;
+        write_command(0x0011); // Entry Mode
+        write_data(0x6840);
+        displayAll();
+        for (x = 0; x < width; x++) {
+            for (int i = 0; i < height >> 2; i++) {
+                for (int k = 0; k < 4; k++) {
+                    g_fifo[k] = 0x01000100 | ((color&0xFF00)>>8) | ((color&0xFF)<<16);
+                }
+                spi_transmit((uint16_t *)g_fifo, 8);
+            }
+        }
+        write_command(0x0011); // Entry Mode
+        write_data(0x6858);
+    }
+
+    __enable_irq();
+    // keep color
+    g_background_color = color;
+
+    return;
+}
+
 int MXC_TFT_SetPalette(int img_id)
 {
     bitmap_info_t bitmap_info;

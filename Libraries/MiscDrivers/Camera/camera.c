@@ -803,6 +803,20 @@ int camera_write_reg(uint16_t reg_addr, uint8_t reg_data)
 {
     return camera.write_reg(reg_addr, reg_data);
 }
+#elif defined(CAMERA_ASX340)
+int camera_read_reg(uint16_t reg_addr, uint16_t *reg_data)
+{
+    return camera.read_reg(reg_addr, reg_data);
+}
+
+int camera_write_reg(uint16_t reg_addr, uint16_t reg_data)
+{
+    return camera.write_reg(reg_addr, reg_data);
+}
+int camera_change_config(void)
+{
+    return camera.change_config();
+}
 #else //CAMERA_OV7642
 int camera_read_reg(uint8_t reg_addr, uint8_t *reg_data)
 {

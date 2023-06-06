@@ -69,12 +69,17 @@
 #define WAIT_US 4
 #define DELAY_US(us) MXC_Delay(us)
 // clang-format on
-
+#ifdef CAMERA_ASX340
+static const mxc_gpio_cfg_t gpio_cfg_scl = { SCL_PORT, SCL_PIN, MXC_GPIO_FUNC_OUT,
+                                             MXC_GPIO_PAD_NONE, MXC_GPIO_VSSEL_VDDIOH };
+static const mxc_gpio_cfg_t gpio_cfg_sda = { SDA_PORT, SDA_PIN, MXC_GPIO_FUNC_OUT,
+                                             MXC_GPIO_PAD_NONE, MXC_GPIO_VSSEL_VDDIOH };
+#else
 static const mxc_gpio_cfg_t gpio_cfg_scl = { SCL_PORT, SCL_PIN, MXC_GPIO_FUNC_OUT,
                                              MXC_GPIO_PAD_NONE, MXC_GPIO_VSSEL_VDDIO };
 static const mxc_gpio_cfg_t gpio_cfg_sda = { SDA_PORT, SDA_PIN, MXC_GPIO_FUNC_OUT,
                                              MXC_GPIO_PAD_NONE, MXC_GPIO_VSSEL_VDDIO };
-
+#endif
 /******************************** Static Functions ***************************/
 static void start(void)
 {
@@ -109,7 +114,17 @@ static void send_NACK(void)
     SDA_LOW();
     DELAY_US(WAIT_US);
 }
-
+static void send_ACK(void)
+{
+    SDA_LOW();
+    DELAY_US(WAIT_US);
+    SCL_HIGH();
+    DELAY_US(WAIT_US);
+    SCL_LOW();
+    DELAY_US(WAIT_US);
+    SDA_HIGH();
+    DELAY_US(WAIT_US);
+}
 static uint8_t send_byte(uint8_t byt)
 {
     uint8_t i;
@@ -332,6 +347,47 @@ int sccb_read_reg16(uint8_t slv_addr, uint16_t reg, uint8_t *byte)
     return ret;
 }
 
+int sccb_read_reg16w(uint8_t slv_addr, uint16_t reg, uint16_t *word)
+{
+    int ret = 0;
+
+    start();
+
+    if (ret == 0) {
+        ret = send_byte(slv_addr << 1); // address
+    }
+
+    if (ret == 0) {
+        ret = send_byte(reg >> 8);
+    }
+
+    if (ret == 0) {
+        ret = send_byte(reg);
+    }
+
+    stop();
+
+    if (ret == 0) {
+        DELAY_US(WAIT_US);
+
+        start();
+        ret = send_byte((slv_addr << 1) + 1); // +1 means read
+        uint8_t firstone;
+         uint8_t byte_second;
+        if (ret == 0) {
+            firstone = get_byte(); //
+            send_ACK();
+            byte_second = get_byte();
+            *word = ((firstone << 8)) + (byte_second);
+            send_NACK();
+        }
+
+        stop();
+    }
+
+    return ret;
+}
+
 int sccb_write_reg16(uint8_t slv_addr, uint16_t reg, uint8_t val)
 {
     int ret = 0;
@@ -354,6 +410,35 @@ int sccb_write_reg16(uint8_t slv_addr, uint16_t reg, uint8_t val)
         ret = send_byte(val); //
     }
 
+    stop();
+
+    return ret;
+}
+
+int sccb_write_reg16w(uint8_t slv_addr, uint16_t reg, uint16_t val)
+{
+    int ret = 0;
+
+    start();
+
+    if (ret == 0) {
+        ret = send_byte(slv_addr << 1); // address
+    }
+
+    if (ret == 0) {
+        ret = send_byte(reg >> 8);
+    }
+
+    if (ret == 0) {
+        ret = send_byte(reg);
+    }
+
+    if (ret == 0) {
+        ret = send_byte(val>>8);
+    }
+    if (ret == 0) {
+        ret = send_byte(val&0xFF);
+    }
     stop();
 
     return ret;
