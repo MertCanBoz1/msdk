@@ -118,7 +118,7 @@ static const uint16_t default_regs[][2] = {
     { 0xC8F4, 0x989D },   /*  CAM_AWB_AWB_WEIGHTS_5 */
     { 0xC8F6, 0x3D23 },   /*  CAM_AWB_AWB_WEIGHTS_6 */
     { 0xC8F8, 0x0624 },   /*  CAM_AWB_AWB_WEIGHTS_7 */
-    { 0xC964, 0x0696 },   /*  CAM_SYSCTL_PLL_DIVIDER_P */
+    { 0xC964, 0x0692 },   /*  CAM_SYSCTL_PLL_DIVIDER_P */
     { 0xC966, 0x0400 },   /*  CAM_SYSCTL_PLL_DIVIDER_P */
     { 0xFFFF, 0xFFFF },
 

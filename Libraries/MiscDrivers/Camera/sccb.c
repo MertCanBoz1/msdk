@@ -69,17 +69,12 @@
 #define WAIT_US 4
 #define DELAY_US(us) MXC_Delay(us)
 // clang-format on
-#ifdef CAMERA_ASX340
-static const mxc_gpio_cfg_t gpio_cfg_scl = { SCL_PORT, SCL_PIN, MXC_GPIO_FUNC_OUT,
-                                             MXC_GPIO_PAD_NONE, MXC_GPIO_VSSEL_VDDIOH };
-static const mxc_gpio_cfg_t gpio_cfg_sda = { SDA_PORT, SDA_PIN, MXC_GPIO_FUNC_OUT,
-                                             MXC_GPIO_PAD_NONE, MXC_GPIO_VSSEL_VDDIOH };
-#else
-static const mxc_gpio_cfg_t gpio_cfg_scl = { SCL_PORT, SCL_PIN, MXC_GPIO_FUNC_OUT,
+
+static mxc_gpio_cfg_t gpio_cfg_scl = { SCL_PORT, SCL_PIN, MXC_GPIO_FUNC_OUT,
                                              MXC_GPIO_PAD_NONE, MXC_GPIO_VSSEL_VDDIO };
-static const mxc_gpio_cfg_t gpio_cfg_sda = { SDA_PORT, SDA_PIN, MXC_GPIO_FUNC_OUT,
+static mxc_gpio_cfg_t gpio_cfg_sda = { SDA_PORT, SDA_PIN, MXC_GPIO_FUNC_OUT,
                                              MXC_GPIO_PAD_NONE, MXC_GPIO_VSSEL_VDDIO };
-#endif
+
 /******************************** Static Functions ***************************/
 static void start(void)
 {
@@ -193,6 +188,11 @@ static uint8_t get_byte(void)
 int sccb_init(void)
 {
     int ret = 0;
+
+#ifdef CAMERA_ASX340
+    gpio_cfg_scl.vssel = MXC_GPIO_VSSEL_VDDIOH;
+    gpio_cfg_sda.vssel = MXC_GPIO_VSSEL_VDDIOH;
+#endif
 
     MXC_GPIO_Config(&gpio_cfg_scl);
     MXC_GPIO_Config(&gpio_cfg_sda);
